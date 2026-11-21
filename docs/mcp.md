@@ -74,12 +74,12 @@ plain `application/json`.
 ## Authentication
 
 When the instance has API key authentication enabled (`auth.keys` in the
-config), `/mcp` requires a key like every other endpoint. Send it as an HTTP
-header — either `Authorization: Bearer <key>` or `X-API-Key: <key>`:
+config), `/mcp` requires a key like every other endpoint. Send it using the
+`Authorization: Bearer <key>` HTTP header:
 
 ```bash
 claude mcp add --transport http whois https://your-instance/mcp \
-  --header "X-API-Key: your-secret-key"
+  --header "Authorization: Bearer your-secret-key"
 ```
 
 ```json
@@ -87,7 +87,7 @@ claude mcp add --transport http whois https://your-instance/mcp \
   "mcpServers": {
     "whois": {
       "url": "https://your-instance/mcp",
-      "headers": { "X-API-Key": "your-secret-key" }
+      "headers": { "Authorization": "Bearer your-secret-key" }
     }
   }
 }

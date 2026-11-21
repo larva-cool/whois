@@ -1,10 +1,12 @@
-[![Go Reference](https://pkg.go.dev/badge/github.com/KincaidYang/whois.svg)](https://pkg.go.dev/github.com/KincaidYang/whois) [![Go](https://github.com/KincaidYang/whois/actions/workflows/go.yml/badge.svg)](https://github.com/KincaidYang/whois/actions/workflows/go.yml) [![CodeQL](https://github.com/KincaidYang/whois/actions/workflows/codeql.yml/badge.svg)](https://github.com/KincaidYang/whois/actions/workflows/codeql.yml) [![codecov](https://codecov.io/gh/KincaidYang/whois/graph/badge.svg)](https://codecov.io/gh/KincaidYang/whois) [![MCP Queen operational grade](https://mcpqueen.com/badge/io.github.KincaidYang/whois.svg)](https://mcpqueen.com/s/io.github.KincaidYang/whois)
+# Whois
 
 [中文文档](README.md)
 
 ## Introduction
 
 A domain WHOIS query tool implemented in Golang, supporting WHOIS information queries for all publicly queryable TLD domains, IPv4/v6, and ASN.
+
+This project is developed with reference to [KincaidYang/whois](https://github.com/KincaidYang/whois). Thanks to the original author and contributors. The original project is for implementation reference only; the code and documentation in this repository define the current project.
 
 In compliance with ICANN's "Temporary Specification for gTLD Registration Data" and the EU's "General Data Protection Regulation" (GDPR), when querying domain information, the program only returns essential information (see response examples below) and does not return the owner's `contact information`, `address`, `phone number`, `email`, and other personal fields.
 
@@ -27,12 +29,12 @@ docker run -d --name whois -p 8043:8043 --link redis:redis jinzeyang/whois
 
 #### Using Binary Files
 
-You can download the binary files for your platform from the [Release](https://github.com/KincaidYang/whois/releases) page.
+You can download the binary files for your platform from the [Release](https://github.com/larva-cool/whois/releases) page.
 
 #### Build from Source
 
 ```bash
-git clone https://github.com/KincaidYang/whois.git
+git clone https://github.com/larva-cool/whois.git
 cd whois
 go build
 ```
@@ -84,7 +86,7 @@ bootstrap:
   interval: 86400              # RDAP server list refresh interval in seconds; 0 disables fetching (recommended: 86400)
 
 auth:
-  keys: []                     # Accepted API keys. Empty (the default) leaves the service open; one or more keys protect every endpoint except /health and /ready. Clients send a key as "Authorization: Bearer <key>" or "X-API-Key: <key>"
+  keys: []                     # Accepted API keys. Empty (the default) leaves the service open; one or more keys protect every endpoint except /health and /ready. Clients send a key as "Authorization: Bearer <key>"
   # Entries are bare strings or objects (named, optionally rate-limited):
   # keys:
   #   - "plain-secret"         # anonymous key, auto-named key1/key2/...
@@ -298,7 +300,7 @@ curl "http://localhost:8043/example.com?raw=1"
 Add `?refresh=1` to bypass the server cache, query the registry directly and overwrite the cached entry with the result (the response carries `X-Cache: REFRESH`) — useful right after a domain transfer or renewal. **Only available on instances with API key authentication enabled**: open instances answer 403 (`refresh-requires-auth`), since otherwise anyone could use it to hammer upstream registries through the cache. Can be combined with `?raw`.
 
 ```bash
-curl -H "X-API-Key: your-secret-key" "http://localhost:8043/example.com?refresh=1"
+curl -H "Authorization: Bearer your-secret-key" "http://localhost:8043/example.com?refresh=1"
 ```
 
 #### Batch Queries
@@ -306,7 +308,7 @@ curl -H "X-API-Key: your-secret-key" "http://localhost:8043/example.com?refresh=
 `POST /batch` answers several queries in one request (domains, IPs/CIDR prefixes and ASNs freely mixed; types are auto-detected). Off by default — enable with `batch.enabled: true`; the per-request cap is `batch.maxItems` (default 10).
 
 ```bash
-curl -X POST -H "X-API-Key: your-secret-key" -H "Content-Type: application/json" \
+curl -X POST -H "Authorization: Bearer your-secret-key" -H "Content-Type: application/json" \
   -d '{"queries": ["example.com", "8.8.8.8", "AS15169"]}' \
   http://localhost:8043/batch
 ```

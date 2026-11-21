@@ -29,14 +29,14 @@ func TestPerKeyRateLimitExceeded(t *testing.T) {
 
 	for i := 1; i <= 2; i++ {
 		req := httptest.NewRequest("GET", "/info", nil)
-		req.Header.Set("X-API-Key", "limited-key")
+		req.Header.Set("Authorization", "Bearer limited-key")
 		if w := authRequest(req); w.Code != http.StatusOK {
 			t.Fatalf("request %d: expected 200, got %d", i, w.Code)
 		}
 	}
 
 	req := httptest.NewRequest("GET", "/info", nil)
-	req.Header.Set("X-API-Key", "limited-key")
+	req.Header.Set("Authorization", "Bearer limited-key")
 	w := authRequest(req)
 	if w.Code != http.StatusTooManyRequests {
 		t.Fatalf("request 3: expected 429, got %d", w.Code)
@@ -63,7 +63,7 @@ func TestPerKeyRateLimitUnlimited(t *testing.T) {
 
 	for i := range 20 {
 		req := httptest.NewRequest("GET", "/info", nil)
-		req.Header.Set("X-API-Key", "free-key")
+		req.Header.Set("Authorization", "Bearer free-key")
 		if w := authRequest(req); w.Code != http.StatusOK {
 			t.Fatalf("request %d: expected 200, got %d", i+1, w.Code)
 		}
@@ -79,19 +79,19 @@ func TestPerKeyRateLimitIndependent(t *testing.T) {
 	})
 
 	reqA := httptest.NewRequest("GET", "/info", nil)
-	reqA.Header.Set("X-API-Key", "key-a")
+	reqA.Header.Set("Authorization", "Bearer key-a")
 	if w := authRequest(reqA); w.Code != http.StatusOK {
 		t.Fatalf("key-a first request: expected 200, got %d", w.Code)
 	}
 
 	reqA = httptest.NewRequest("GET", "/info", nil)
-	reqA.Header.Set("X-API-Key", "key-a")
+	reqA.Header.Set("Authorization", "Bearer key-a")
 	if w := authRequest(reqA); w.Code != http.StatusTooManyRequests {
 		t.Fatalf("key-a second request: expected 429, got %d", w.Code)
 	}
 
 	reqB := httptest.NewRequest("GET", "/info", nil)
-	reqB.Header.Set("X-API-Key", "key-b")
+	reqB.Header.Set("Authorization", "Bearer key-b")
 	if w := authRequest(reqB); w.Code != http.StatusOK {
 		t.Errorf("key-b should be unaffected by key-a's limit: got %d", w.Code)
 	}

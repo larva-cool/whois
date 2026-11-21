@@ -42,8 +42,8 @@ which has no raw WHOIS form).
 
 **Status: 401.** The server has API key authentication enabled (`auth.keys` in
 config) and the request carried no valid key. Send a configured key as
-`Authorization: Bearer <key>` or `X-API-Key: <key>`. Only `/health` and
-`/ready` are exempt from authentication.
+`Authorization: Bearer <key>`. Only `/health` and `/ready` are exempt from
+authentication.
 
 ## refresh-requires-auth
 

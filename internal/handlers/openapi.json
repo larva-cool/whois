@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "whois",
-    "description": "WHOIS/RDAP query service. Returns registration data for domain names, IP networks (including CIDR prefixes) and autonomous system numbers as JSON aligned with the RDAP vocabulary (RFC 9083). Errors follow RFC 9457 Problem Details. API key authentication is disabled by default; when the operator configures `auth.keys`, every endpoint except /health and /ready requires a key sent as `Authorization: Bearer <key>` or `X-API-Key: <key>`.",
+    "description": "WHOIS/RDAP query service. Returns registration data for domain names, IP networks (including CIDR prefixes) and autonomous system numbers as JSON aligned with the RDAP vocabulary (RFC 9083). Errors follow RFC 9457 Problem Details. API key authentication is disabled by default; when the operator configures `auth.keys`, every endpoint except /health and /ready requires a key sent as `Authorization: Bearer <key>`.",
     "version": "1.6.0",
     "license": {
       "name": "MIT",
@@ -22,9 +22,6 @@
     {},
     {
       "bearerAuth": []
-    },
-    {
-      "apiKeyHeader": []
     }
   ],
   "paths": {
@@ -571,12 +568,6 @@
         "type": "http",
         "scheme": "bearer",
         "description": "API key sent as `Authorization: Bearer <key>`. Only enforced when the server is configured with `auth.keys`; authentication is disabled by default."
-      },
-      "apiKeyHeader": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "X-API-Key",
-        "description": "API key sent as `X-API-Key: <key>`. Only enforced when the server is configured with `auth.keys`; authentication is disabled by default."
       }
     },
     "parameters": {

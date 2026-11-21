@@ -1,9 +1,11 @@
-[![Go Reference](https://pkg.go.dev/badge/github.com/KincaidYang/whois.svg)](https://pkg.go.dev/github.com/KincaidYang/whois) [![Go](https://github.com/KincaidYang/whois/actions/workflows/go.yml/badge.svg)](https://github.com/KincaidYang/whois/actions/workflows/go.yml) [![CodeQL](https://github.com/KincaidYang/whois/actions/workflows/codeql.yml/badge.svg)](https://github.com/KincaidYang/whois/actions/workflows/codeql.yml) [![codecov](https://codecov.io/gh/KincaidYang/whois/graph/badge.svg)](https://codecov.io/gh/KincaidYang/whois) [![MCP Queen operational grade](https://mcpqueen.com/badge/io.github.KincaidYang/whois.svg)](https://mcpqueen.com/s/io.github.KincaidYang/whois)
+# Whois
 
 [English](README_EN.md)
 
 ## 介绍
 基于 Golang 实现的域名 Whois 查询工具，支持所有允许公开查询的 TLD 后缀的域名、IPv4/v6、ASN 的 Whois 信息查询。
+
+本项目参考原项目 [KincaidYang/whois](https://github.com/KincaidYang/whois) 开发，感谢原项目作者及贡献者。原项目仅作为实现参考，当前项目以本仓库的代码和文档为准。
 根据 ICANN 《通用顶级域名注册数据临时政策细则（Temporary Specification for gTLD Registration Data）》和欧盟《通用数据保护条例》合规要求，在查询域名信息时，程序只返回了部分必要的信息（详见下方返回结果示例），不会返回所有者的`联系方式`、`地址`、`电话`、`邮箱`等字段。
 
 演示站点：
@@ -23,10 +25,10 @@ docker run -d --name whois -p 8043:8043 --link redis:redis docker.cnb.cool/kinca
 
 ### 下载
 #### 使用二进制文件
-您可从 [Release](https://github.com/KincaidYang/whois/releases) 页面下载对应平台的二进制文件。
+您可从 [Release](https://github.com/larva-cool/whois/releases) 页面下载对应平台的二进制文件。
 #### 从源码编译
 ```bash
-git clone https://github.com/KincaidYang/whois.git
+git clone https://github.com/larva-cool/whois.git
 cd whois
 go build
 ```
@@ -74,7 +76,7 @@ bootstrap:
   interval: 86400              # RDAP 服务器列表从 IANA 刷新间隔，单位：秒；0 则禁用（推荐：86400）
 
 auth:
-  keys: []                     # API 密钥列表。留空（默认）则服务完全开放；配置一个或多个密钥后，除 /health 和 /ready 外的所有端点都需要认证，请求时通过 "Authorization: Bearer <key>" 或 "X-API-Key: <key>" 携带密钥
+  keys: []                     # API 密钥列表。留空（默认）则服务完全开放；配置一个或多个密钥后，除 /health 和 /ready 外的所有端点都需要认证，请求时通过 "Authorization: Bearer <key>" 携带密钥
   # 列表项支持纯字符串，也支持对象形式（可命名、可按 key 限流）：
   # keys:
   #   - "plain-secret"         # 匿名 key，自动命名 key1/key2/…
@@ -289,14 +291,14 @@ curl "http://localhost:8043/example.com?raw=1"
 添加 `?refresh=1` 参数可跳过服务端缓存、强制向注册局查询并用新结果覆盖缓存（响应带 `X-Cache: REFRESH`），适合域名转移/续费后立即查看新状态。**仅在开启 API 认证的实例上可用**：未配置 `auth.keys` 的实例返回 403（`refresh-requires-auth`）——否则任何人都能借此击穿缓存刷上游注册局。可与 `?raw` 叠加使用。
 
 ```bash
-curl -H "X-API-Key: your-secret-key" "http://localhost:8043/example.com?refresh=1"
+curl -H "Authorization: Bearer your-secret-key" "http://localhost:8043/example.com?refresh=1"
 ```
 
 #### 批量查询
 `POST /batch` 一次提交多个查询（域名/IP/CIDR/ASN 可混排，自动识别类型），逐项返回结果。默认关闭，需配置 `batch.enabled: true`；单批条数上限 `batch.maxItems`（默认 10）。
 
 ```bash
-curl -X POST -H "X-API-Key: your-secret-key" -H "Content-Type: application/json" \
+curl -X POST -H "Authorization: Bearer your-secret-key" -H "Content-Type: application/json" \
   -d '{"queries": ["example.com", "8.8.8.8", "AS15169"]}' \
   http://localhost:8043/batch
 ```

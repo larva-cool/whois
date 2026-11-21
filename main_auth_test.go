@@ -86,27 +86,28 @@ func TestAuthBearerKey(t *testing.T) {
 	}
 }
 
-// TestAuthAPIKeyHeader verifies a configured key sent as X-API-Key is accepted.
-func TestAuthAPIKeyHeader(t *testing.T) {
+// TestAuthAPIKeyHeaderRejected verifies the legacy X-API-Key header is not
+// accepted, even when it contains a configured key.
+func TestAuthAPIKeyHeaderRejected(t *testing.T) {
 	withTestAuthKeys(t, "test-key-1")
 
 	req := httptest.NewRequest("GET", "/info", nil)
 	req.Header.Set("X-API-Key", "test-key-1")
-	if w := authRequest(req); w.Code != http.StatusOK {
-		t.Errorf("expected 200, got %d", w.Code)
+	if w := authRequest(req); w.Code != http.StatusUnauthorized {
+		t.Errorf("expected 401, got %d", w.Code)
 	}
 }
 
-// TestAuthInvalidBearerFallsBackToAPIKey verifies a stale bearer token does
-// not mask a valid X-API-Key sent on the same request.
-func TestAuthInvalidBearerFallsBackToAPIKey(t *testing.T) {
+// TestAuthInvalidBearerDoesNotFallBackToAPIKey verifies X-API-Key cannot
+// authenticate a request whose bearer token is invalid.
+func TestAuthInvalidBearerDoesNotFallBackToAPIKey(t *testing.T) {
 	withTestAuthKeys(t, "test-key-1")
 
 	req := httptest.NewRequest("GET", "/info", nil)
 	req.Header.Set("Authorization", "Bearer stale-token")
 	req.Header.Set("X-API-Key", "test-key-1")
-	if w := authRequest(req); w.Code != http.StatusOK {
-		t.Errorf("expected 200, got %d", w.Code)
+	if w := authRequest(req); w.Code != http.StatusUnauthorized {
+		t.Errorf("expected 401, got %d", w.Code)
 	}
 }
 
@@ -121,7 +122,7 @@ func TestAuthEmptyKeyNeverMatches(t *testing.T) {
 	}
 }
 
-// TestAuthWrongKey verifies unknown keys are rejected on both headers.
+// TestAuthWrongKey verifies an unknown bearer key is rejected.
 func TestAuthWrongKey(t *testing.T) {
 	withTestAuthKeys(t, "test-key-1")
 
@@ -129,12 +130,6 @@ func TestAuthWrongKey(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer wrong-key")
 	if w := authRequest(req); w.Code != http.StatusUnauthorized {
 		t.Errorf("Bearer wrong key: expected 401, got %d", w.Code)
-	}
-
-	req = httptest.NewRequest("GET", "/info", nil)
-	req.Header.Set("X-API-Key", "wrong-key")
-	if w := authRequest(req); w.Code != http.StatusUnauthorized {
-		t.Errorf("X-API-Key wrong key: expected 401, got %d", w.Code)
 	}
 }
 
@@ -169,7 +164,7 @@ func TestAuthClientInContext(t *testing.T) {
 	})
 
 	req := httptest.NewRequest("GET", "/info", nil)
-	req.Header.Set("X-API-Key", "test-key-2")
+	req.Header.Set("Authorization", "Bearer test-key-2")
 	withAuth(inner).ServeHTTP(httptest.NewRecorder(), req)
 
 	if !gotOK || gotName != "monitor" {
@@ -189,7 +184,7 @@ func TestAuthStatusWriterFlush(t *testing.T) {
 	})
 
 	req := httptest.NewRequest("GET", "/mcp", nil)
-	req.Header.Set("X-API-Key", "test-key-1")
+	req.Header.Set("Authorization", "Bearer test-key-1")
 	withAuth(inner).ServeHTTP(httptest.NewRecorder(), req)
 
 	if flushErr != nil {
@@ -208,7 +203,7 @@ func TestAuthPreflightExempt(t *testing.T) {
 	if w.Code != http.StatusNoContent {
 		t.Fatalf("expected 204, got %d", w.Code)
 	}
-	if got := w.Header().Get("Access-Control-Allow-Headers"); !strings.Contains(got, "Authorization") || !strings.Contains(got, "X-API-Key") {
-		t.Errorf("Access-Control-Allow-Headers missing auth headers: %q", got)
+	if got := w.Header().Get("Access-Control-Allow-Headers"); !strings.Contains(got, "Authorization") || strings.Contains(got, "X-API-Key") {
+		t.Errorf("Access-Control-Allow-Headers must allow only Authorization for authentication: %q", got)
 	}
 }

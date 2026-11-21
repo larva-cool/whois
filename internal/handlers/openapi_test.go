@@ -37,8 +37,8 @@ func TestWithoutAnonymousSecurity(t *testing.T) {
 			names[name] = true
 		}
 	}
-	if !names["bearerAuth"] || !names["apiKeyHeader"] {
-		t.Errorf("patched security lost a scheme: got %v, want bearerAuth and apiKeyHeader", names)
+	if !names["bearerAuth"] || names["apiKeyHeader"] {
+		t.Errorf("patched security schemes: got %v, want only bearerAuth", names)
 	}
 
 	var orig struct {

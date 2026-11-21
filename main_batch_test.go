@@ -195,7 +195,7 @@ func TestBatchChargesRateLimitTokens(t *testing.T) {
 	}
 
 	req := httptest.NewRequest("POST", "/batch", strings.NewReader(`{"queries": ["batchtokena.cn", "batchtokenb.cn", "batchtokenc.cn"]}`))
-	req.Header.Set("X-API-Key", "batch-key")
+	req.Header.Set("Authorization", "Bearer batch-key")
 	w := authRequest(req)
 	if w.Code != http.StatusOK {
 		t.Fatalf("batch within budget: expected 200, got %d: %s", w.Code, w.Body.String())
@@ -203,7 +203,7 @@ func TestBatchChargesRateLimitTokens(t *testing.T) {
 
 	// Budget (3/min) is now fully spent: a single follow-up request is 429.
 	follow := httptest.NewRequest("GET", "/info", nil)
-	follow.Header.Set("X-API-Key", "batch-key")
+	follow.Header.Set("Authorization", "Bearer batch-key")
 	if w := authRequest(follow); w.Code != http.StatusTooManyRequests {
 		t.Errorf("after batch: expected 429, got %d", w.Code)
 	}
@@ -216,7 +216,7 @@ func TestBatchOverBudget(t *testing.T) {
 	withTestAuthClients(t, []config.AuthClient{limitedClient("tiny-key", "tiny", 2)})
 
 	req := httptest.NewRequest("POST", "/batch", strings.NewReader(`{"queries": ["a.cn", "b.cn", "c.cn", "d.cn"]}`))
-	req.Header.Set("X-API-Key", "tiny-key")
+	req.Header.Set("Authorization", "Bearer tiny-key")
 	w := authRequest(req)
 	if w.Code != http.StatusTooManyRequests {
 		t.Fatalf("expected 429, got %d", w.Code)

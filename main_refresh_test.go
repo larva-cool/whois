@@ -72,14 +72,14 @@ func TestRefreshBypassesCache(t *testing.T) {
 	}
 
 	req := httptest.NewRequest("GET", "/"+domain, nil)
-	req.Header.Set("X-API-Key", "refresh-test-key")
+	req.Header.Set("Authorization", "Bearer refresh-test-key")
 	w := authRequest(req)
 	if w.Code != http.StatusOK || w.Header().Get("X-Cache") != "HIT" {
 		t.Fatalf("without refresh: expected cached 200 HIT, got %d %q", w.Code, w.Header().Get("X-Cache"))
 	}
 
 	req = httptest.NewRequest("GET", "/"+domain+"?refresh=1", nil)
-	req.Header.Set("X-API-Key", "refresh-test-key")
+	req.Header.Set("Authorization", "Bearer refresh-test-key")
 	w = authRequest(req)
 	if w.Code != http.StatusNotFound || !strings.Contains(w.Body.String(), "No WHOIS or RDAP server known") {
 		t.Errorf("with refresh: expected the upstream path (404 no server known), got %d: %s", w.Code, w.Body.String())

@@ -24,7 +24,7 @@ func withMetricsAddr(t *testing.T, addr string) {
 func getMetrics(key string) *httptest.ResponseRecorder {
 	req := httptest.NewRequest("GET", "/metrics", nil)
 	if key != "" {
-		req.Header.Set("X-API-Key", key)
+		req.Header.Set("Authorization", "Bearer "+key)
 	}
 	return authRequest(req)
 }

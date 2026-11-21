@@ -154,7 +154,7 @@ type Config struct {
 		// Keys is the list of accepted API keys. Empty (the default) leaves
 		// the service open; one or more keys protect every endpoint except
 		// /health and /ready, which stay open for liveness probes. Clients
-		// send a key as "Authorization: Bearer <key>" or "X-API-Key: <key>".
+		// send a key as "Authorization: Bearer <key>".
 		// Entries are bare strings or {key, name, rateLimit} objects; see
 		// AuthKeySpec.
 		Keys []AuthKeySpec `json:"keys" yaml:"keys"`

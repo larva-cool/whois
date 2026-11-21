@@ -66,17 +66,13 @@ func withRequestID(next http.Handler) http.Handler {
 const bearerPrefix = "Bearer "
 
 // requestClient returns the configured client whose API key the request
-// presents as "Authorization: Bearer <key>" or "X-API-Key: <key>", or nil.
-// Both headers are checked, so a stale bearer token does not mask a valid
-// X-API-Key.
+// presents as "Authorization: Bearer <key>", or nil.
 func requestClient(r *http.Request) *config.AuthClient {
-	if auth := r.Header.Get("Authorization"); len(auth) > len(bearerPrefix) &&
-		strings.EqualFold(auth[:len(bearerPrefix)], bearerPrefix) {
-		if client := clientForKey(auth[len(bearerPrefix):]); client != nil {
-			return client
-		}
+	auth := r.Header.Get("Authorization")
+	if len(auth) <= len(bearerPrefix) || !strings.EqualFold(auth[:len(bearerPrefix)], bearerPrefix) {
+		return nil
 	}
-	return clientForKey(r.Header.Get("X-API-Key"))
+	return clientForKey(auth[len(bearerPrefix):])
 }
 
 // clientForKey returns the configured client whose key matches, comparing
@@ -149,7 +145,7 @@ func withCORS(next http.Handler) http.Handler {
 			// Mcp-Method and Mcp-Name are mandatory on every /mcp request from
 			// protocol revision 2026-07-28 on, so browser-based MCP clients
 			// cannot reach the endpoint at all unless preflight allows them.
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key, If-None-Match, X-Request-ID, Mcp-Session-Id, Mcp-Protocol-Version, Mcp-Method, Mcp-Name, Last-Event-ID")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, If-None-Match, X-Request-ID, Mcp-Session-Id, Mcp-Protocol-Version, Mcp-Method, Mcp-Name, Last-Event-ID")
 			w.Header().Set("Access-Control-Max-Age", "86400")
 			w.WriteHeader(http.StatusNoContent)
 			return

@@ -36,14 +36,14 @@ func mcpRequestVersion(key, body, version string) *httptest.ResponseRecorder {
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json, text/event-stream")
-	req.Header.Set("X-API-Key", key)
+	req.Header.Set("Authorization", "Bearer "+key)
 	return authRequest(req)
 }
 
 func infoAllowed(t *testing.T, key string) bool {
 	t.Helper()
 	req := httptest.NewRequest("GET", "/info", nil)
-	req.Header.Set("X-API-Key", key)
+	req.Header.Set("Authorization", "Bearer "+key)
 	return authRequest(req).Code == http.StatusOK
 }
 
