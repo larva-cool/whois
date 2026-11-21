@@ -35,5 +35,5 @@ jobs:
             VERSION=${{ env.VERSION }}
             COMMIT=${{ github.sha }}
           tags: |
-            jinzeyang/whois:${{ env.VERSION }}
-            jinzeyang/whois:latest
+            larva-cool/whois:${{ env.VERSION }}
+            larva-cool/whois:latest
