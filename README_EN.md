@@ -21,8 +21,8 @@ Demo Sites:
 ```bash
 # Install Redis
 docker run -d --name redis -p 6379:6379 redis:latest
-# Run whois
-docker run -d --name whois -p 8043:8043 --link redis:redis jinzeyang/whois
+# Run whois (recommended for mainland users)
+docker run -d --name whois -p 8043:8043 --link redis:redis larva-cool/whois:latest
 ```
 
 ### Download

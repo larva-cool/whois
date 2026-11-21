@@ -17,10 +17,8 @@
 ```bash
 # 安装 Redis
 docker run -d --name redis -p 6379:6379 redis:latest
-# 运行 whois
-docker run -d --name whois -p 8043:8043 --link redis:redis jinzeyang/whois
 # 运行 whois（大陆推荐）
-docker run -d --name whois -p 8043:8043 --link redis:redis docker.cnb.cool/kincaidyang/whois
+docker run -d --name whois -p 8043:8043 --link redis:redis larva-cool/whois:latest
 ```
 
 ### 下载
