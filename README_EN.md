@@ -22,7 +22,7 @@ Demo Sites:
 # Install Redis
 docker run -d --name redis -p 6379:6379 redis:latest
 # Run whois (recommended for mainland users)
-docker run -d --name whois -p 8043:8043 --link redis:redis larva-cool/whois:latest
+docker run -d --name whois -p 8043:8043 --link redis:redis ghcr.io/larva-cool/whois:latest
 ```
 
 ### Download
